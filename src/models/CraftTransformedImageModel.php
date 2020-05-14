@@ -19,42 +19,42 @@ class CraftTransformedImageModel implements TransformedImageInterface
      * @var string
      */
     public $path;
-    
+
     /**
      * @var string
      */
     public $filename;
-    
+
     /**
      * @var string
      */
     public $url;
-    
+
     /**
      * @var string
      */
     public $extension;
-    
+
     /**
      * @var string
      */
     public $mimeType;
-    
+
     /**
      * @var int
      */
     public $width;
-    
+
     /**
      * @var int
      */
     public $height;
-    
+
     /**
      * @var int|float
      */
     public $size;
-    
+
     /**
      * @var bool
      */
@@ -83,6 +83,13 @@ class CraftTransformedImageModel implements TransformedImageInterface
             $this->mimeType = FileHelper::getMimeType($targetModel->getFilePath());
         } catch (InvalidConfigException $e) {
             // just ignore
+        }
+
+        // if empty file size, set width and height as zero to avoid errors
+        if (empty($this->size)) {
+          $this->width = 0;
+          $this->height = 0;
+          return;
         }
 
         $imageInfo = @getimagesize($targetModel->getFilePath());
@@ -166,7 +173,7 @@ class CraftTransformedImageModel implements TransformedImageInterface
     /**
      * @return bool
      */
-    public function getIsNew(): bool 
+    public function getIsNew(): bool
     {
         return $this->isNew;
     }

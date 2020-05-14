@@ -100,7 +100,7 @@ class CraftTransformer extends Component implements TransformerInterface
 
         $taskCreated = false;
 
-        // Loop over transformed images and do post optimizations and upload to external storage 
+        // Loop over transformed images and do post optimizations and upload to external storage
         foreach ($transformedImages as $transformedImage) {
             /** @var TransformedImageInterface $transformedImage */
             if ($transformedImage->getIsNew()) {
@@ -152,7 +152,20 @@ class CraftTransformer extends Component implements TransformerInterface
 
                     if (!$result) {
                         // todo : delete transformed file. Assume that we'd want to try again.
-                    }
+                    } else {
+											if (isset($storageSettings['useFilledLocalFiles']) && $storageSettings['useFilledLocalFiles'] === true) {
+                        list($width, $height, $type, $attr) = getimagesize($path);
+                        $img = imagecreatetruecolor($width, $height);
+                        $white  = imagecolorallocate($img,0,0,0);
+                        imagefilledrectangle($img,0,0,$width-1,$height-1,$white);
+                        imagetruecolortopalette($img, false, 1);
+                        imagepng($img, $path, 9); //set the compression level to highest
+                        imagedestroy($img);
+                      }
+                      if (isset($storageSettings['useEmptyLocalFiles']) && $storageSettings['useEmptyLocalFiles'] === true) {
+                        file_put_contents($path, '');
+                      }
+										}
                 } else {
                     $msg = 'Could not find settings for storage "' . $storage . '"';
                     Craft::error($msg, __METHOD__);
@@ -223,6 +236,8 @@ class CraftTransformer extends Component implements TransformerInterface
                     Craft::error($msg, __METHOD__);
                     throw new ImagerException($msg);
                 }
+
+								$targetModel->path = realpath($targetModel->path);
             }
 
             try {
