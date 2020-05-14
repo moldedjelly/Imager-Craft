@@ -10,7 +10,6 @@
 
 namespace aelvan\imager\transformers;
 
-use aelvan\imager\helpers\ImgixHelpers;
 use Craft;
 
 use craft\base\Component;
@@ -128,8 +127,30 @@ class ImgixTransformer extends Component implements TransformerInterface
         }
 
         $params = $this->createParams($transform, $image, $imgixConfig);
-        $path = ImgixHelpers::getImgixFilePath($image, $imgixConfig);
-        $url = $builder->createURL($path, $params);
+
+        if (\is_string($image)) { // if $image is a string, just pass it to builder, we have to assume the user knows what he's doing (sry) :)
+            $url = $builder->createURL($image, $params);
+        } else {
+            if ($imgixConfig->sourceIsWebProxy === true) {
+                $url = $builder->createURL($image->url, $params);
+            } else {
+                try {
+                    /** @var LocalVolumeInterface|Volume|Local $volume */
+                    $volume = $image->getVolume();
+                } catch (InvalidConfigException $e) {
+                    Craft::error($e->getMessage(), __METHOD__);
+                    throw new ImagerException($e->getMessage(), $e->getCode(), $e);
+                }
+
+                if (($imgixConfig->useCloudSourcePath === true) && isset($volume->subfolder) && \get_class($volume) !== 'craft\volumes\Local') {
+                    $path = implode('/', [$volume->subfolder, $image->getPath()]);
+                } else {
+                    $path = $image->getPath();
+                }
+
+                $url = $builder->createURL($this->getUrlEncodedPath($path), $params);
+            }
+        }
 
         return new ImgixTransformedImageModel($url, $image, $params, $imgixConfig);
     }
@@ -373,4 +394,21 @@ class ImgixTransformer extends Component implements TransformerInterface
 
         return $config->getSetting('jpegQuality', $transform);
     }
+
+    /**
+     * URL encode the asset path properly
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    private function getUrlEncodedPath($path): string
+    {
+        $entities = array('%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B', '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D');
+        $replacements = array('!', '*', "'", '(', ')', ';', ':', '@', '&', '=', '+', '$', ',', '/', '?', '%', '#', '[', ']');
+        $path = str_replace($entities, $replacements, urlencode($path));
+        
+        return $path;
+    }
+    
 }

@@ -13,7 +13,7 @@ namespace aelvan\imager\externalstorage;
 use Craft;
 use craft\helpers\FileHelper;
 
-use Google\Cloud\Core\Exception\ServiceException;
+use Google\Cloud\Exception\ServiceException;
 use Google\Cloud\Storage\StorageClient;
 
 use aelvan\imager\models\ConfigModel;
@@ -31,9 +31,6 @@ class GcsStorage implements ImagerStorageInterface
             $uri = ltrim(FileHelper::normalizePath($settings['folder'] . '/' . $uri), '/');
         }
         
-        // Always use forward slashes
-        $uri = str_replace('\\', '/', $uri);
-        
         $keyFilePath = FileHelper::normalizePath($settings['keyFile']);
         
         $storage = new StorageClient([
@@ -45,7 +42,7 @@ class GcsStorage implements ImagerStorageInterface
         
         try {
             $bucket->upload(
-                fopen($file, 'rb'),
+                fopen($file, 'r'),
                 [
                     'name' => $uri,
                     'predefinedAcl' => 'publicRead',

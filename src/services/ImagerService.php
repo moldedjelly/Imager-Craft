@@ -10,6 +10,7 @@
 
 namespace aelvan\imager\services;
 
+use aelvan\imager\exceptions\ImagerException;
 use Craft;
 
 use craft\base\Component;
@@ -22,14 +23,12 @@ use yii\base\InvalidParamException;
 
 use aelvan\imager\Imager as Plugin;
 use aelvan\imager\helpers\ImagerHelpers;
-use aelvan\imager\models\TransformedImageInterface;
 use aelvan\imager\models\LocalSourceImageModel;
 use aelvan\imager\models\LocalTargetImageModel;
-use aelvan\imager\models\ConfigModel;
 use aelvan\imager\transformers\TransformerInterface;
+use aelvan\imager\models\ConfigModel;
 use aelvan\imager\transformers\CraftTransformer;
 use aelvan\imager\transformers\ImgixTransformer;
-use aelvan\imager\exceptions\ImagerException;
 
 /**
  * ImagerService Service
@@ -296,7 +295,7 @@ class ImagerService extends Component
      * @param array        $transformDefaults
      * @param array        $configOverrides
      *
-     * @return array|TransformedImageInterface|null
+     * @return array|null
      * @throws ImagerException
      */
     public function transformImage($image, $transforms, $transformDefaults = null, $configOverrides = null)
@@ -324,7 +323,7 @@ class ImagerService extends Component
         $transforms = $this->mergeTransforms($transforms, $transformDefaults);
 
         // Normalize transform parameters
-        $transforms = $this->normalizeTransforms($transforms, $image);
+        $transforms = $this->normalizeTransforms($transforms);
 
         // Create transformer
         try {
@@ -593,16 +592,15 @@ class ImagerService extends Component
      * Merges default transform object into an array of transforms
      *
      * @param array $transforms
-     * @param Asset|string $image
      *
      * @return array
      */
-    private function normalizeTransforms($transforms, $image): array
+    private function normalizeTransforms($transforms): array
     {
         $r = [];
 
         foreach ($transforms as $t) {
-            $r[] = $this->normalizeTransform((array)$t, $image);
+            $r[] = $this->normalizeTransform((array)$t);
         }
 
         return $r;
@@ -612,11 +610,10 @@ class ImagerService extends Component
      * Normalize transform object and values
      *
      * @param array $transform
-     * @param Asset|string $image
      *
      * @return array
      */
-    private function normalizeTransform($transform, $image): array
+    private function normalizeTransform($transform): array
     {
         // if resize mode is not crop or croponly, remove position
         if (isset($transform['mode'], $transform['position']) && (($transform['mode'] !== 'crop') && ($transform['mode'] !== 'croponly'))) {
@@ -646,14 +643,10 @@ class ImagerService extends Component
             }
         }
 
-        // if no position is passed and a focal point exists, use it
-        if ($image instanceof Asset && !isset($transform['position']) && $image->getHasFocalPoint()) {
-            $transform['position'] = $image->getFocalPoint();
-        }
-        
         // if transform is in Craft's named version, convert to percentage
         if (isset($transform['position'])) {
-            if (\is_array($transform['position']) && isset($transform['position']['x'], $transform['position']['y'])) {
+
+            if (\is_array($transform['position']) && isset($transform['position']['x']) && isset($transform['position']['y'])) {
                 $transform['position'] = ($transform['position']['x'] * 100).' '.($transform['position']['y'] * 100);
             }
 

@@ -24,6 +24,7 @@ class ConfigModel extends Settings
     {
         parent::__construct($config);
 
+
         // Reset model to get overrides from config file 
         foreach ($settings as $key => $value) {
             $this->$key = $value;
@@ -52,7 +53,7 @@ class ConfigModel extends Settings
         $aliasables = ['imagerSystemPath', 'imagerUrl'];
 
         foreach ($aliasables as $aliasable) {
-            $this->{$aliasable} = \Yii::getAlias($this->{$aliasable});
+            $this->{$aliasable} = \Yii::getAlias($settings->{$aliasable});
         }
     }
 

@@ -43,7 +43,7 @@ class PlaceholderService extends Component
     /**
      * Main public placeholder method.
      * 
-     * @param array|null $config
+     * @param null $config
      * @return string
      * @throws ImagerException
      */
@@ -111,7 +111,6 @@ class PlaceholderService extends Component
         $image = $imagineInstance->create(new Box($width, $height), $col);
         $data = $image->get('gif');
         
-        
         return 'data:image/gif;base64,' . base64_encode($data);
     }
 
@@ -138,7 +137,7 @@ class PlaceholderService extends Component
             $sourceModel = new LocalSourceImageModel($source);
             $sourceModel->getLocalCopy();
         } catch (ImagerException $e) {
-            return '';
+            return null;
         }
         
         $tracer = new Potracio();
@@ -156,14 +155,14 @@ class PlaceholderService extends Component
      */
     private function createImagineInstance()
     {
-        $imageDriver = ImagerService::$imageDriver;
+        $extension = mb_strtolower(\Craft::$app->getConfig()->getGeneral()->imageDriver);
         
         try {
-            if ($imageDriver === 'gd') {
+            if ($extension === 'gd') {
                 return new \Imagine\Gd\Imagine();
             }
 
-            if ($imageDriver === 'imagick') {
+            if ($extension === 'imagick') {
                 return new \Imagine\Imagick\Imagine();
             }
         } catch (RuntimeException $e) {

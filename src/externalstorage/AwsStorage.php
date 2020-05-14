@@ -32,14 +32,11 @@ class AwsStorage implements ImagerStorageInterface
         $clientConfig = [
             'version' => 'latest',
             'region' => $settings['region'],
-        ];
-
-        if (isset($settings['accessKey'], $settings['secretAccessKey'])) {
-            $clientConfig['credentials'] = [
+            'credentials' => [
                 'key' => $settings['accessKey'],
                 'secret' => $settings['secretAccessKey'],
-            ];
-        }
+            ],
+        ];
 
         try {
             $s3 = new S3Client($clientConfig);
@@ -52,10 +49,7 @@ class AwsStorage implements ImagerStorageInterface
             $uri = ltrim(FileHelper::normalizePath($settings['folder'].'/'.$uri), '/');
         }
 
-        //always use forward slashes for S3
-        $uri = str_replace('\\', '/', $uri);
-
-        $opts = $settings['requestHeaders'] ?? [];
+        $opts = $settings['requestHeaders'];
         $cacheDuration = $isFinal ? $config->cacheDurationExternalStorage : $config->cacheDurationNonOptimized;
 
         if (!isset($opts['Cache-Control'])) {
@@ -65,20 +59,22 @@ class AwsStorage implements ImagerStorageInterface
         $opts = array_merge($opts, [
             'Bucket' => $settings['bucket'],
             'Key' => $uri,
-            'Body' => fopen($file, 'rb'),
+            'Body' => fopen($file, 'r'),
             'ACL' => 'public-read',
-            'StorageClass' => self::getAWSStorageClass($settings['storageType'] ?? 'standard'),
+            'StorageClass' => self::getAWSStorageClass($settings['storageType']),
         ]);
 
         try {
             $s3->putObject($opts);
         } catch (S3Exception $e) {
             Craft::error('An error occured while uploading to Amazon S3: '.$e->getMessage(), __METHOD__);
+
             return false;
         }
 
         // Cloudfront invalidation
         if (isset($settings['cloudfrontInvalidateEnabled'], $settings['cloudfrontDistributionId']) && $settings['cloudfrontInvalidateEnabled'] === true) {
+            
             try {
                 $cloudfront = new CloudFrontClient($clientConfig);
             } catch (\InvalidArgumentException $e) {

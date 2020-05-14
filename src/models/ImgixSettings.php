@@ -11,9 +11,8 @@ class ImgixSettings extends Model
     public $signKey = '';
     public $sourceIsWebProxy = false;
     public $useCloudSourcePath = true;
-    public $addPath = null;
     public $shardStrategy = 'cycle';
-    public $getExternalImageDimensions = true;
+    public $getExternalImageDimensions = false;
     public $defaultParams = [];
     public $excludeFromPurge = false;
     public $apiKey = '';

@@ -134,8 +134,8 @@ class ImagerVariable
     }
 
     /**
-     * Calculates color brightness (https://www.w3.org/TR/AERT#color-contrast) on a scale from 0 (black) to 255 (white). 
-     * 
+     * Calculates color brightness (https://www.w3.org/TR/AERT#color-contrast) on a scale from 0 (black) to 255 (white).
+     *
      * @param string|array $color
      * @return float
      */
@@ -143,10 +143,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getBrightness($color);
     }
-    
+
     /**
      * Get the hue channel of a color.
-     * 
+     *
      * @param string|array $color
      * @return float
      */
@@ -154,10 +154,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getHue($color);
     }
-    
+
      /**
      * Get the lightness channel of a color
-     * 
+     *
      * @param string|array $color
      * @return float
      */
@@ -165,9 +165,9 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getLightness($color);
     }
-    
+
     /**
-     * Checks brightness($color) >= $threshold. Accepts an optional $threshold float as the last parameter with a default of 127.5. 
+     * Checks brightness($color) >= $threshold. Accepts an optional $threshold float as the last parameter with a default of 127.5.
      *
      * @param string|array $color
      * @param float $threshold
@@ -177,10 +177,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->isBright($color, $threshold);
     }
-    
+
     /**
-     * Checks lightness($color) >= $threshold. Accepts an optional $threshold float as the last parameter with a default of 50.0. 
-     * 
+     * Checks lightness($color) >= $threshold. Accepts an optional $threshold float as the last parameter with a default of 50.0.
+     *
      * @param string|array $color
      * @param int $threshold
      * @return bool
@@ -189,10 +189,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->isLight($color, $threshold);
     }
-    
+
     /**
-     * Checks perceived_brightness($color) >= $threshold. Accepts an optional $threshold float as the last parameter with a default of 127.5. 
-     * 
+     * Checks perceived_brightness($color) >= $threshold. Accepts an optional $threshold float as the last parameter with a default of 127.5.
+     *
      * @param string|array $color
      * @param float $threshold
      * @return bool
@@ -201,10 +201,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->looksBright($color, $threshold);
     }
-    
+
     /**
      * Calculates the perceived brightness (http://alienryderflex.com/hsp.html) of a color on a scale from 0 (black) to 255 (white).
-     * 
+     *
      * @param string|array $color
      * @return float
      */
@@ -212,10 +212,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getPercievedBrightness($color);
     }
-    
+
     /**
      * Calculates the relative luminance (https://www.w3.org/TR/WCAG20/#relativeluminancedef) of a color on a scale from 0 (black) to 1 (white).
-     * 
+     *
      * @param string|array $color
      * @return float
      */
@@ -223,10 +223,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getRelativeLuminance($color);
     }
-    
+
     /**
      * Get the saturation channel of a color.
-     * 
+     *
      * @param string|array $color
      * @return float
      */
@@ -234,10 +234,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getSaturation($color);
     }
-    
+
     /**
      * Calculates brightness difference (https://www.w3.org/TR/AERT#color-contrast) on a scale from 0 to 255.
-     * 
+     *
      * @param string|array $color1
      * @param string|array $color2
      * @return float
@@ -246,10 +246,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getBrightnessDifference($color1, $color2);
     }
-    
+
     /**
      * Calculates color difference (https://www.w3.org/TR/AERT#color-contrast) on a scale from 0 to 765.
-     * 
+     *
      * @param string|array $color1
      * @param string|array $color2
      * @return int
@@ -258,10 +258,10 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getColorDifference($color1, $color2);
     }
-    
+
     /**
      * Calculates the contrast ratio (https://www.w3.org/TR/WCAG20/#contrast-ratiodef) between two colors on a scale from 1 to 21.
-     * 
+     *
      * @param string|array $color1
      * @param string|array $color2
      * @return float
@@ -270,7 +270,7 @@ class ImagerVariable
     {
         return Plugin::$plugin->color->getContrastRatio($color1, $color2);
     }
-    
+
     /**
      * Checks for webp support in image driver
      *
@@ -316,4 +316,29 @@ class ImagerVariable
     {
         return Plugin::$plugin->getSettings()->transformer === 'imgix';
     }
+
+
+    /**
+     * Fit dimensions into target dimensions
+     *
+     * @return array
+     */
+    public function fitInto($origImgWH, $targImgWH): array
+    {
+      $imgRatio = $origImgWH['width']/$origImgWH['height'];
+    	$targRatio = $targImgWH['width']/$targImgWH['height'];
+    	$endImgWH = array();
+    	if ($imgRatio > $targRatio) {
+    		$endImgWH['width'] = $targImgWH['width'];
+    		$endImgWH['height'] = round($targImgWH['width']/$imgRatio);
+    	} else {
+    		$endImgWH['width'] = round($imgRatio*$targImgWH['height']);
+    		$endImgWH['height'] = $targImgWH['height'];
+    	}
+    	return $endImgWH;
+    }
+
+
+
+
 }

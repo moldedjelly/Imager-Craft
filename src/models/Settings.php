@@ -2,7 +2,6 @@
 
 namespace aelvan\imager\models;
 
-use craft\helpers\FileHelper;
 use craft\base\Model;
 use Yii;
 
@@ -164,7 +163,7 @@ class Settings extends Model
     public function init()
     {
         // Have to set this here cause Yii::getAlias can't be used in default value
-        $this->imagerSystemPath = FileHelper::normalizePath(Yii::getAlias($this->imagerSystemPath));
+        $this->imagerSystemPath = Yii::getAlias($this->imagerSystemPath);
         $this->suppressExceptions = !\Craft::$app->getConfig()->general->devMode;
     }
 }

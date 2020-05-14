@@ -13,49 +13,15 @@ use aelvan\imager\exceptions\ImagerException;
 
 class ImgixTransformedImageModel implements TransformedImageInterface
 {
-    /**
-     * @var string
-     */
     public $path;
-    
-    /**
-     * @var string
-     */
     public $filename;
-    
-    /**
-     * @var string
-     */
     public $url;
-    
-    /**
-     * @var string
-     */
     public $extension;
-    
-    /**
-     * @var string
-     */
     public $mimeType;
-    
-    /**
-     * @var int
-     */
     public $width;
-    
-    /**
-     * @var int
-     */
     public $height;
-    
-    /**
-     * @var int|float
-     */
     public $size;
 
-    /**
-     * @var ImgixSettings|null
-     */
     private $profileConfig;
 
     /**
@@ -95,7 +61,7 @@ class ImgixTransformedImageModel implements TransformedImageInterface
                 if ($sourceWidth / $sourceHeight < $paramsW / $paramsH) {
                     $useW = min($paramsW, $sourceWidth);
                     $this->width = $useW;
-                    $this->height = round($useW * ($paramsH / $paramsW));
+                    $this->height = round($useW * ($paramsW / $paramsH));
                 } else {
                     $useH = min($paramsH, $sourceHeight);
                     $this->width = round($useH * ($paramsW / $paramsH));
@@ -126,11 +92,7 @@ class ImgixTransformedImageModel implements TransformedImageInterface
                     }
                 }
             } else {
-                // Neither is set, image is not resized. Just get dimensions and return.
-                list($sourceWidth, $sourceHeight) = $this->getSourceImageDimensions($source);
-                
-                $this->width = $sourceWidth;
-                $this->height = $sourceHeight;
+                // todo : neither is set, image is not resized. What to do?
             }
         }
     }
@@ -289,19 +251,10 @@ class ImgixTransformedImageModel implements TransformedImageInterface
     }
 
     /**
-     * @return bool
-     */
-    public function getIsNew(): bool
-    {
-        return false;
-    }
-    
-    /**
      * @return string
      */
     public function __toString()
     {
         return (string)$this->url;
     }
-
 }

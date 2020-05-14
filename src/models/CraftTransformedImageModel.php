@@ -15,57 +15,22 @@ use yii\base\InvalidConfigException;
 
 class CraftTransformedImageModel implements TransformedImageInterface
 {
-    /**
-     * @var string
-     */
     public $path;
-
-    /**
-     * @var string
-     */
     public $filename;
-
-    /**
-     * @var string
-     */
     public $url;
-
-    /**
-     * @var string
-     */
     public $extension;
-
-    /**
-     * @var string
-     */
     public $mimeType;
-
-    /**
-     * @var int
-     */
     public $width;
-
-    /**
-     * @var int
-     */
     public $height;
-
-    /**
-     * @var int|float
-     */
     public $size;
-
-    /**
-     * @var bool
-     */
     public $isNew;
 
     /**
-     * Constructor
+     * CraftTransformedImageModel constructor.
      *
      * @param LocalTargetImageModel $targetModel
      * @param LocalSourceImageModel $sourceModel
-     * @param array $transform
+     * @param array                 $transform
      *
      * @throws ImagerException
      */
@@ -78,7 +43,6 @@ class CraftTransformedImageModel implements TransformedImageInterface
 
         $this->extension = $targetModel->extension;
         $this->size = @filesize($targetModel->getFilePath());
-
         try {
             $this->mimeType = FileHelper::getMimeType($targetModel->getFilePath());
         } catch (InvalidConfigException $e) {
@@ -171,16 +135,8 @@ class CraftTransformedImageModel implements TransformedImageInterface
     }
 
     /**
-     * @return bool
-     */
-    public function getIsNew(): bool
-    {
-        return $this->isNew;
-    }
-
-    /**
      * @param string $unit
-     * @param int $precision
+     * @param int    $precision
      *
      * @return float|int
      */
